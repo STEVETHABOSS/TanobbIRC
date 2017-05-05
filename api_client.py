@@ -2,9 +2,11 @@
 
 import requests
 
-url = "http://www.transltr.org/"
+url = "http://www.transltr.org/api/translate"
 
 
 def translate(trans_to, trans_from, text):
-    return "This shit don't work yet"
+    data = {"text": text, "to": trans_to, "from": trans_from}
+    r = requests.get(url, params=data)
+    return r.json()
 
