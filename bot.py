@@ -24,8 +24,6 @@ while 1:
     ircmsg = irc.recv(2048).decode("UTF-8")                    #Get input
     ircmsg = ircmsg.strip('\n\r')
     
-    print(ircmsg) #debug
-    
     if ircmsg.find("PING :") != -1:                            #Respond to server pings
         irc.send(bytes("PONG :pingis\n", "UTF-8"))
         
@@ -35,8 +33,6 @@ while 1:
         msg  = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
         tr   = translate(msg)
         
-        for i in channel:
+        for i in channel:                                      #Send translated reply
             if i != "#"+chan:
                 sendmsg("<{}> [{}] {} {}".format(name, chan, msg, tr), i)
-        
-        #sendmsg("<{}> {}".format(name, tr), "#"+chan)
