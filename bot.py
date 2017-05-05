@@ -3,24 +3,23 @@ import socket
 
 server  = "localhost"                                          #Global settings
 port    = 6667
-lang    = ["#test", "#test2"]
+channel = ["#ar", "#de", "#en", "#es", "#fa", "#fi", "#fr", "hi", "#ja", "#ko", "#pt", "#ru", "#zh"]
 botnick = "Tanobb"
 irc     = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 irc.connect((server, port))                                    #Connect to server
-irc.send(bytes("USER "+botnick+" "+botnick+" "+botnick+" "+botnick+"\n", "UTF-8"))
-irc.send(bytes("NICK "+botnick+"\n", "UTF-8"))
+irc.send(bytes("USER {0} {0} {0} {0}\n".format(botnick), "UTF-8"))
+irc.send(bytes("NICK {}\n".format(botnick), "UTF-8"))
 
-def sendmsg(msg, target):                                      #Send messages
-    irc.send(bytes("PRIVMSG "+target+" :"+msg+"\n", "UTF-8"))
+def sendmsg(msg, chan):                                        #Send messages
+    irc.send(bytes("PRIVMSG {} :{}\n".format(chan, msg), "UTF-8"))
 
 def translate(msg):                                            #Translation (placeholder)
     return msg
 
-for i in lang:                                                 #Join channels
-    irc.send(bytes("JOIN "+lang[0]+"\n", "UTF-8"))
-    irc.send(bytes("JOIN "+lang[1]+"\n", "UTF-8"))
-    
+for i in channel:                                              #Join channels
+    irc.send(bytes("JOIN {}\n".format(i), "UTF-8"))
+
 while 1:
     ircmsg = irc.recv(2048).decode("UTF-8")                    #Get input
     ircmsg = ircmsg.strip('\n\r')
@@ -36,4 +35,8 @@ while 1:
         msg  = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
         tr   = translate(msg)
         
-        sendmsg("<"+name+"> "+tr+"", "#"+chan)
+        for i in channel:
+            if i != "#"+chan:
+                sendmsg("<{}> [{}] {} {}".format(name, chan, msg, tr), i)
+        
+        #sendmsg("<{}> {}".format(name, tr), "#"+chan)
