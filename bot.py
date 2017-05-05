@@ -1,3 +1,4 @@
+
 #Cyrus Boushehri 4/5/17
 import socket
 from api_client import translate
@@ -7,18 +8,20 @@ port    = 6667
 channel = ["#ar", "#de", "#en", "#es", "#fa", "#fi", "#fr", "hi", "#ja", "#ko", "#pt", "#ru", "#zh-CHS"]
 botnick = "Tanobb"
 irc     = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+r       = {"name":"","lang":"","msg":""}
 
 irc.connect((server, port))                                    #Connect to server
 irc.send(bytes("USER {0} {0} {0} {0}\n".format(botnick), "UTF-8"))
 irc.send(bytes("NICK {}\n".format(botnick), "UTF-8"))
 
-def format(input):
-    return name = ircmsg.split('!',1)[0][1:]
-    return lang = ircmsg.split('#')[1].split(' :')[0]
-    return msg  = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
-
-def broadcast(name, lang, msg):
-    for chan in channel:                                   #Send translated message
+def format(input):                                             #Get name, channel and message from buffer
+    #r["name"] = ircmsg.split('!',1)[0][1:]
+    #r["lang"] = ircmsg.split('#')[1].split(' :')[0]
+    #r["msg"]  = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
+    return r
+    
+def broadcast(name, lang, msg):                                #Send translated message to all channels
+    for chan in channel:
         if chan != "#"+lang:
             tr  = translate(chan.strip("#"), lang, msg)
             tex = "<{}> [{}] {} {}".format(name, lang, msg, tr)
@@ -36,12 +39,12 @@ while 1:
         
     if ircmsg.find("PRIVMSG") != -1:                           #Listen for messages
         format(ircmsg)
-        broadcast(name, lang, msg)
+        broadcast(r["name"], r["lang"], r["msg"])
     
     if ircmsg.find("JOIN"):
         format(ircmsg)
-        broadcast(name, "SYS", "Has Joined {}".format(lang))
+        broadcast(r["name"], "SYS", "Has Joined #{}".format(r["lang"]))
     
     if ircmsg.find("QUIT"):
         format(ircmsg)
-        broadcast(name, "SYS", "Has Quit {}".format(lang))
+        broadcast(r["name"], "SYS", "Has Quit #{}".format(r["lang"]))
