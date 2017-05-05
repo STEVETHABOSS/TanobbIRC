@@ -2,7 +2,7 @@
 
 import socket
 
-server  = "localhost"                                          #Settings
+server  = "localhost"                                          #Global settings
 port    = 6667
 channel = "#test"
 botnick = "Tanobb"
@@ -45,38 +45,15 @@ def main():
             name    = ircmsg.split('!',1)[0][1:]
             message = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
             
-            if message.find('Hi ' + botnick) != -1:
-                sendmsg("Hello " + name + "!")
+            print(name)
             
-            if message[:5].find('.tell') != -1:
-                target = message.split(' ', 1)[1]
+            sendmsg("" + name + "")
             
-                if target.find(' ') != -1:
-                    message = target.split(' ', 1)[1]
-                    target = target.split(' ')[0]
+            #target = message.split(' ', 1)[1]
+            #if target.find(' ') != -1:
+            #    message = target.split(' ', 1)[1]
+            #    target = target.split(' ')[0]
             
-                else:
-                    target = name
-                    message = "Could not parse. The message should be in the format of ‘.tell [target] [message]’ to work properly."
-        
-                sendmsg(message, target)
-
+            #sendmsg(message, target)
+                          
 main()
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
