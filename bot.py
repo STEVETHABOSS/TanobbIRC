@@ -7,30 +7,29 @@ port    = 6667
 channel = ["#ar", "#de", "#en", "#es", "#fa", "#fi", "#fr", "hi", "#ja", "#ko", "#pt", "#ru", "#zh-CHS"]
 botnick = "Tanobb"
 irc     = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-r       = {"name":"","lang":"","msg":""}
+#r       = {"name":"","lang":"","msg":""}
 
 irc.connect((server, port))                                    #Connect to server
 irc.send(bytes("USER {0} {0} {0} {0}\n".format(botnick), "UTF-8"))
 irc.send(bytes("NICK {}\n".format(botnick), "UTF-8"))
 
-def format(input):                                             #Get name, channel and message from buffer
-    r["name"] = ircmsg.split('!',1)[0][1:]
-    r["lang"] = ircmsg.split('#')[1].split(' :')[0]
-    fuck      = "kill me" ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
-    r["msg"]  = fuck
-    return r
 
 
+#def format(input):                                             #Get name, channel and message from buffer
+#    r["name"] = ircmsg.split('!',1)[0][1:]
+#    r["lang"] = ircmsg.split('#')[1].split(' :')[0]
+#    r["msg"]  = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
+#    return r
 
-def broadcast(name, lang, msg):                                #Send translated message to all channels
-    for chan in channel:
-        if chan != "#"+lang:
-            try:
-                tr  = translate(chan.strip("#"), lang, msg)
-            except:
-                tr  = "Translation Error"
-            tex = "<{}> [{}] {} {}".format(name, lang, msg, tr)
-            irc.send(bytes("PRIVMSG {} :{}\n".format(chan, tex), "UTF-8"))
+#def broadcast(name, lang, msg):                                #Send translated message to all channels
+#    for chan in channel:
+#        if chan != "#"+lang:
+#            try:
+#                tr  = translate(chan.strip("#"), lang, msg)
+#            except:
+#                tr  = "Translation Error"
+#            tex = "<{}> [{}] {} {}".format(name, lang, msg, tr)
+#            irc.send(bytes("PRIVMSG {} :{}\n".format(chan, tex), "UTF-8"))
 
 
 
@@ -45,14 +44,28 @@ while 1:
         irc.send(bytes("PONG :pingis\n", "UTF-8"))
         
     if ircmsg.find("PRIVMSG") != -1:                           #Listen for messages
-        #format(ircmsg)
-        print(ircmsg.split('PRIVMSG :')[1].split(':',1)[1])
-        broadcast(r["name"], r["lang"], r["msg"])
+#        format(ircmsg)
+#        broadcast(r["name"], r["lang"], r["msg"])
+
+        name = ircmsg.split('!',1)[0][1:]
+        lang = ircmsg.split('#')[1].split(' :')[0]
+        msg  = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
         
-    if ircmsg.find("JOIN") != -1:
-        format(ircmsg)
-        broadcast(r["name"], r["lang"], "Has Joined #{}".format(r["lang"]))
+        for chan in channel:
+            if chan != "#"+lang:
+                try:
+                    tr  = translate(chan.strip("#"), lang, msg)
+                except:
+                    tr  = "Translation Error"
+                tex = "<{}> [{}] {} {}".format(name, lang, msg, tr)
+                irc.send(bytes("PRIVMSG {} :{}\n".format(chan, tex), "UTF-8"))
         
-    if ircmsg.find("QUIT") != -1:
-        format(ircmsg)
-        broadcast(r["name"], r["lang"], "Has Quit #{}".format(r["lang"]))
+        
+        
+#    if ircmsg.find("JOIN") != -1:
+#        format(ircmsg)
+#        broadcast(r["name"], r["lang"], "Has Joined #{}".format(r["lang"]))
+#        
+#    if ircmsg.find("QUIT") != -1:
+#        format(ircmsg)
+#        broadcast(r["name"], r["lang"], "Has Quit #{}".format(r["lang"]))
