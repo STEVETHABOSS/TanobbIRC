@@ -1,4 +1,3 @@
-
 #Cyrus Boushehri 4/5/17
 import socket
 from api_client import translate
@@ -15,17 +14,25 @@ irc.send(bytes("USER {0} {0} {0} {0}\n".format(botnick), "UTF-8"))
 irc.send(bytes("NICK {}\n".format(botnick), "UTF-8"))
 
 def format(input):                                             #Get name, channel and message from buffer
-    #r["name"] = ircmsg.split('!',1)[0][1:]
-    #r["lang"] = ircmsg.split('#')[1].split(' :')[0]
-    #r["msg"]  = ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
+    r["name"] = ircmsg.split('!',1)[0][1:]
+    r["lang"] = ircmsg.split('#')[1].split(' :')[0]
+    fuck      = "kill me" ircmsg.split('PRIVMSG',1)[1].split(':',1)[1]
+    r["msg"]  = fuck
     return r
-    
+
+
+
 def broadcast(name, lang, msg):                                #Send translated message to all channels
     for chan in channel:
         if chan != "#"+lang:
-            tr  = translate(chan.strip("#"), lang, msg)
+            try:
+                tr  = translate(chan.strip("#"), lang, msg)
+            except:
+                tr  = "Translation Error"
             tex = "<{}> [{}] {} {}".format(name, lang, msg, tr)
             irc.send(bytes("PRIVMSG {} :{}\n".format(chan, tex), "UTF-8"))
+
+
 
 for i in channel:                                              #Join channels
     irc.send(bytes("JOIN {}\n".format(i), "UTF-8"))
@@ -38,13 +45,14 @@ while 1:
         irc.send(bytes("PONG :pingis\n", "UTF-8"))
         
     if ircmsg.find("PRIVMSG") != -1:                           #Listen for messages
-        format(ircmsg)
+        #format(ircmsg)
+        print(ircmsg.split('PRIVMSG :')[1].split(':',1)[1])
         broadcast(r["name"], r["lang"], r["msg"])
-    
-    if ircmsg.find("JOIN"):
+        
+    if ircmsg.find("JOIN") != -1:
         format(ircmsg)
-        broadcast(r["name"], "SYS", "Has Joined #{}".format(r["lang"]))
-    
-    if ircmsg.find("QUIT"):
+        broadcast(r["name"], r["lang"], "Has Joined #{}".format(r["lang"]))
+        
+    if ircmsg.find("QUIT") != -1:
         format(ircmsg)
-        broadcast(r["name"], "SYS", "Has Quit #{}".format(r["lang"]))
+        broadcast(r["name"], r["lang"], "Has Quit #{}".format(r["lang"]))
